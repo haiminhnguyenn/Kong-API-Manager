@@ -18,4 +18,7 @@ def create_app(config_class=Config):
     from app.services import services_bp
     app.register_blueprint(services_bp, url_prefix="/services")
     
+    from app.routes import routes_bp
+    app.register_blueprint(routes_bp)
+    
     return app

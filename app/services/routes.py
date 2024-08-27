@@ -1,7 +1,7 @@
 from app.services import services_bp
 from flask import request, jsonify, current_app as app
 from app.service_async_tasks import create_kong_gw_service, update_kong_gw_service, delete_kong_gw_service
-from app.models.service import ServiceConfiguration
+from app.models import ServiceConfiguration
 from app.extensions import db
 from sqlalchemy import or_
 
@@ -54,7 +54,6 @@ def create_service():
 def get_all_services():
     try:
         services_list = ServiceConfiguration.query.all()
-        
         services_data = [service.to_dict() for service in services_list]
 
         return jsonify({
@@ -160,13 +159,18 @@ def delete_service(identifier):
                     ServiceConfiguration.name == identifier
                 )
             )
-        )
+        ).scalar()
         
         if service_to_delete is None:
             return jsonify({
                 "error": "Service not found.",
                 "message": "No service found with the provided identifier."
             }), 404
+            
+        if service_to_delete.routes:
+            return jsonify({
+                "error": "An existing 'routes' entity references this 'services' entity"
+            }), 400
         
         delete_kong_gw_service.delay(identifier)
         

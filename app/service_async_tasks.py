@@ -1,7 +1,7 @@
 from app import celery
 from app.extensions import db
 from flask import current_app as app
-from app.models.service import ServiceConfiguration
+from app.models import ServiceConfiguration, RouteConfiguration
 from sqlalchemy import or_
 import requests
 import logging
@@ -71,11 +71,18 @@ def update_kong_gw_service(identifier ,data):
             ).scalar()
             
             service_to_update.refresh_updated_at(response.json().get("updated_at"))
-            
             for key, value in data.items():
                 setattr(service_to_update, key, value)
                 
-            db.session.add(service_to_update)
+            routes_for_updated_service = db.session.query(RouteConfiguration).filter(
+                RouteConfiguration.service_id == service_to_update.id
+            ).all()
+            
+            for route in routes_for_updated_service:
+                route.service.refresh_updated_at(response.json().get("updated_at"))
+                for key, value in data.items():
+                    setattr(route.service, key, value)
+
             db.session.commit()
             logger.info(f"Service updated successfully: {service_to_update.id}")
         else:
