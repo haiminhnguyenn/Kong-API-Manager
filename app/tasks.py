@@ -44,10 +44,7 @@ def create_kong_gw_service(data):
             db.session.commit()
             logger.info(f"Service created successfully: {new_service.id}")
         else:
-            logger.error(
-                f"Failed to create service. Status code: {response.status_code}, 
-                Response: {response.text}"
-            )
+            logger.error(f"Failed to create service. Status code: {response.status_code}, Response: {response.text}")
             
     except requests.RequestException as e:
         logger.error(f"Request failed: {e}")
@@ -56,9 +53,9 @@ def create_kong_gw_service(data):
         logger.error(f"An unexpected error occurred: {e}")
 
 
-@celery.task
-def update_kong_gw_service(service, data):
-    url = f"{app.config["KONG_ADMIN_URL"]}/services/{service.id}"
+# @celery.task
+# def update_kong_gw_service(service, data):
+#     url = f"{app.config["KONG_ADMIN_URL"]}/services/{service.id}"
     
-    response = requests.patch(url, json=data, timeout=300)
+#     response = requests.patch(url, json=data, timeout=300)
             
