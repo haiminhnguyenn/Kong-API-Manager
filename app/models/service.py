@@ -7,7 +7,7 @@ from typing import Optional
 class ServiceConfiguration(db.Model):
     __tablename__ = "service_configuration"
 
-    id: Mapped[str] = mapped_column(String(36), primary_key=True)  
+    id: Mapped[str] = mapped_column(String(50), primary_key=True)  
     host: Mapped[str] = mapped_column(String(255), nullable=False)  
     name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)  
     enable: Mapped[bool] = mapped_column(Boolean, default=True)
@@ -48,3 +48,9 @@ class ServiceConfiguration(db.Model):
             "write_timeout": self.write_timeout,
             "ca_certificates": self.ca_certificates
         }
+       
+    
+    def refresh_updated_at(self, epoch_seconds):
+        self.updated_at = epoch_seconds
+        db.session.add(self)
+        db.session.commit()

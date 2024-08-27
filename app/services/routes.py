@@ -1,8 +1,9 @@
 from app.services import services
 from flask import request, jsonify, current_app as app
-from app.tasks import create_kong_gw_service
+from app.service_async_tasks import create_kong_gw_service, update_kong_gw_service, delete_kong_gw_service
 from app.models.service import ServiceConfiguration
 from app.extensions import db
+from sqlalchemy import or_
 
 
 @services.route("/", methods=["POST"])
@@ -31,12 +32,11 @@ def create_service():
         create_kong_gw_service.delay(filtered_data)
         
         return jsonify({
-            "data": filtered_data,
+            "accept_data": filtered_data,
             "ignored_fields": list(ignored_fields),
             "message": "Service creation request has been submitted."
         }), 200
         
-           
     except ValueError as e:
         return jsonify({
             "error": "Invalid data.",
@@ -72,8 +72,12 @@ def get_all_services():
 def get_service(identifier):
     try:
         service = db.session.execute(
-            db.select(ServiceConfiguration)
-            .where(ServiceConfiguration.id == identifier or ServiceConfiguration.name == identifier)
+            db.select(ServiceConfiguration).where(
+                or_(
+                    ServiceConfiguration.id == identifier,
+                    ServiceConfiguration.name == identifier
+                )   
+            )
         ).scalar()
         
         if service is None:
@@ -102,8 +106,12 @@ def update_service(identifier):
             raise ValueError("Invalid JSON data.")
         
         service_to_update = db.session.execute(
-            db.select(ServiceConfiguration)
-            .where(ServiceConfiguration.id == identifier or ServiceConfiguration.name == identifier)
+            db.select(ServiceConfiguration).where(
+                or_(
+                    ServiceConfiguration.id == identifier,
+                    ServiceConfiguration.name == identifier
+                )
+            )
         ).scalar()
         
         if service_to_update is None:
@@ -111,28 +119,60 @@ def update_service(identifier):
                 "error": "Service not found.",
                 "message": "No service found with the provided identifier."
             }), 404
+            
+        filtered_data = {}
+        ignored_fields = set()
         
-        # ignored_fields = set()
+        for key, value in data.items():
+            if key in app.config["SERVICE_CONFIG_FIELDS"]:
+                filtered_data[key] = value
+            else:
+                ignored_fields.add(key)
+                
+        update_kong_gw_service.delay(identifier ,filtered_data)
         
-        # for key, value in data.items():
-        #     if key in app.config["SERVICE_CONFIG_FIELDS"]:
-        #         setattr(service_to_update, key, value)
-        #     else:
-        #         ignored_fields.add(key)
+        return jsonify({
+            "accept_data": filtered_data,
+            "ignored_fields": list(ignored_fields),
+            "message": "Service update request has been submitted."
+        }), 200
         
-        # db.session.commit()
-        # return jsonify({
-        #     "status": "success",
-        #     "ignored_fields": list(ignored_fields),
-        #     "updated_service": service_to_update.to_dict()
-        # }), 200
-
-    
     except ValueError as e:
         return jsonify({
             "error": "Invalid data.",
             "message": str(e)
         }), 400
+    
+    except Exception as e:
+        return jsonify({
+            "error": "Internal server error.",
+            "message": str(e)
+        }), 500
+       
+
+@services.route("/<identifier>", methods=["DELETE"])
+def delete_service(identifier):
+    try:
+        service_to_delete = db.session.execute(
+            db.select(ServiceConfiguration).where(
+                or_(
+                    ServiceConfiguration.id == identifier,
+                    ServiceConfiguration.name == identifier
+                )
+            )
+        )
+        
+        if service_to_delete is None:
+            return jsonify({
+                "error": "Service not found.",
+                "message": "No service found with the provided identifier."
+            }), 404
+        
+        delete_kong_gw_service.delay(identifier)
+        
+        return jsonify({
+            "message": "Service deletion request has been submitted."
+        }), 200
     
     except Exception as e:
         return jsonify({
