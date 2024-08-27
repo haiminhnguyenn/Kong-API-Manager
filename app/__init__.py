@@ -15,7 +15,7 @@ def create_app(config_class=Config):
     
     celery.conf.update(app.config)
     
-    from app.services import services as services_bp
+    from app.services import services_bp
     app.register_blueprint(services_bp, url_prefix="/services")
     
     return app

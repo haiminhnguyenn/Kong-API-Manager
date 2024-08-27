@@ -8,5 +8,13 @@ class Config:
         "read_timeout", "tags", "client_certificate",
         "tls_verify", "tls_verify_depth", "ca_certificates", "url"
     }
+    ROUTE_CONFIG_FIELDS = {
+        "paths", "methods", "sources","destinations",
+        "name", "headers", "hosts", "preserve_host",
+        "regex_priority", "snis", "https_redirect_status_code",
+        "tags", "protocols", "path_handling", "id",
+        "updated_at", "service", "response_buffering",
+        "strip_path", "request_buffering", "created_at"
+    }
     CELERY_BROKER_URL = "amqp://localhost"
     KONG_ADMIN_URL = "http://localhost:8001"

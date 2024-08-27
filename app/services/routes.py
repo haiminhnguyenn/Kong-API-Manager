@@ -1,4 +1,4 @@
-from app.services import services
+from app.services import services_bp
 from flask import request, jsonify, current_app as app
 from app.service_async_tasks import create_kong_gw_service, update_kong_gw_service, delete_kong_gw_service
 from app.models.service import ServiceConfiguration
@@ -6,7 +6,7 @@ from app.extensions import db
 from sqlalchemy import or_
 
 
-@services.route("/", methods=["POST"])
+@services_bp.route("/", methods=["POST"])
 def create_service():
     try:
         data = request.get_json()
@@ -50,7 +50,7 @@ def create_service():
         }), 500
         
 
-@services.route("/")
+@services_bp.route("/")
 def get_all_services():
     try:
         services_list = ServiceConfiguration.query.all()
@@ -68,7 +68,7 @@ def get_all_services():
         }), 500
 
 
-@services.route("/<identifier>")
+@services_bp.route("/<identifier>")
 def get_service(identifier):
     try:
         service = db.session.execute(
@@ -97,7 +97,7 @@ def get_service(identifier):
         }), 500 
         
 
-@services.route("/<identifier>", methods=["PATCH"])
+@services_bp.route("/<identifier>", methods=["PATCH"])
 def update_service(identifier):
     try:
         data = request.get_json()
@@ -150,7 +150,7 @@ def update_service(identifier):
         }), 500
        
 
-@services.route("/<identifier>", methods=["DELETE"])
+@services_bp.route("/<identifier>", methods=["DELETE"])
 def delete_service(identifier):
     try:
         service_to_delete = db.session.execute(
