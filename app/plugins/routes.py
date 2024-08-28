@@ -19,6 +19,19 @@ def create_plugin():
                 "error": "Missing required field.",
                 "message": "Required field 'name' must be provided."
             }), 400
+            
+        if data.get("instance_name") is not None:
+            plugin_instance_name = data.get("instance_name")
+            existed_plugin = db.session.execute(
+                db.select(PluginConfiguration)
+                .where(PluginConfiguration.instance_name == plugin_instance_name)
+            ).scalar()
+            
+            if existed_plugin:
+                return jsonify({
+                    "error": f"UNIQUE violation detected on 'instance_name=\"{plugin_instance_name}\"'",
+                    "message": f"A plugin with the instance name '{plugin_instance_name}' already exists."
+                }), 409
         
         filtered_data = {}
         ignored_fields = set()
@@ -77,6 +90,19 @@ def create_plugin_for_service(service_identifier):
                 "error": "Missing required field.",
                 "message": "Required field 'name' must be provided."
             }), 400
+            
+        if data.get("instance_name") is not None:
+            plugin_instance_name = data.get("instance_name")
+            existed_plugin = db.session.execute(
+                db.select(PluginConfiguration)
+                .where(PluginConfiguration.instance_name == plugin_instance_name)
+            ).scalar()
+            
+            if existed_plugin:
+                return jsonify({
+                    "error": f"UNIQUE violation detected on 'instance_name=\"{plugin_instance_name}\"'",
+                    "message": f"A plugin with the instance name '{plugin_instance_name}' already exists."
+                }), 409
         
         filtered_data = {}
         ignored_fields = set()
@@ -135,6 +161,19 @@ def create_plugin_for_route(route_identifier):
                 "error": "Missing required field.",
                 "message": "Required field 'name' must be provided."
             }), 400
+            
+        if data.get("instance_name") is not None:
+            plugin_instance_name = data.get("instance_name")
+            existed_plugin = db.session.execute(
+                db.select(PluginConfiguration)
+                .where(PluginConfiguration.instance_name == plugin_instance_name)
+            ).scalar()
+            
+            if existed_plugin:
+                return jsonify({
+                    "error": f"UNIQUE violation detected on 'instance_name=\"{plugin_instance_name}\"'",
+                    "message": f"A plugin with the instance name '{plugin_instance_name}' already exists."
+                }), 409
         
         filtered_data = {}
         ignored_fields = set()
@@ -167,7 +206,7 @@ def create_plugin_for_route(route_identifier):
         
         
 @plugins_bp.route("/plugins")
-def get_all_routes():
+def get_all_plugins():
     try:
         plugins_list = PluginConfiguration.query.all()
         plugins_data = [plugin.to_dict() for plugin in plugins_list]
@@ -299,6 +338,19 @@ def update_plugin(plugin_identifier):
                 "error": "Plugin not found.",
                 "message": "No plugin found with the provided identifier."
             }), 404
+            
+        if data.get("instance_name") is not None:
+            new_plugin_instance_name = data.get("instance_name")
+            conflict_plugin = db.session.execute(
+                db.select(PluginConfiguration)
+                .where(PluginConfiguration.instance_name == new_plugin_instance_name)
+            ).scalar()
+            
+            if conflict_plugin:
+                return jsonify({
+                    "error": f"UNIQUE violation detected on 'instance_name=\"{new_plugin_instance_name}\"'",
+                    "message": f"The instance name '{new_plugin_instance_name}' conflict with an existing plugin."
+                }), 409
             
         filtered_data = {}
         ignored_fields = set()

@@ -1,6 +1,6 @@
 class Config:
     SECRET_KEY = "kong-gw-api-manager-secret-key"
-    SQLALCHEMY_DATABASE_URI = "postgresql://postgres:26032003@localhost:5432/kong_gateway_manager_db" 
+    SQLALCHEMY_DATABASE_URI = "postgresql://postgres:26032003@localhost:5432/kong_api_manager_db" 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SERVICE_CONFIG_FIELDS = {
         "name", "host", "protocol", "port", "path",

@@ -20,6 +20,19 @@ def create_route():
                     "error": "Missing required field.",
                     "message": "Must set one of 'methods', 'hosts', 'headers', 'snis'(for 'https'), 'paths' when 'protocols' is 'http' or 'https'."
                 }), 400
+                
+        if data.get("name") is not None:
+            route_name = data.get("name")
+            existed_route = db.session.execute(
+                db.select(RouteConfiguration)
+                .where(RouteConfiguration.name == route_name)
+            ).scalar()
+            
+            if existed_route:
+                return jsonify({
+                    "error": f"UNIQUE violation detected on 'name=\"{route_name}\"'",
+                    "message": f"A route with the name '{route_name}' already exists."
+                }), 409
         
         filtered_data = {}
         ignored_fields = set()
@@ -79,6 +92,19 @@ def create_route_for_service(service_identifier):
                     "error": "Missing required field.",
                     "message": "Must set one of 'methods', 'hosts', 'headers', 'snis'(for 'https'), 'paths' when 'protocols' is 'http' or 'https'."
                 }), 400
+                
+        if data.get("name") is not None:
+            route_name = data.get("name")
+            existed_route = db.session.execute(
+                db.select(RouteConfiguration)
+                .where(RouteConfiguration.name == route_name)
+            ).scalar()
+            
+            if existed_route:
+                return jsonify({
+                    "error": f"UNIQUE violation detected on 'name=\"{route_name}\"'",
+                    "message": f"A route with the name '{route_name}' already exists."
+                }), 409
         
         filtered_data = {}
         ignored_fields = set()
@@ -211,6 +237,19 @@ def update_route(route_identifier):
                 "error": "Route not found.",
                 "message": "No route found with the provided identifier."
             }), 404
+            
+        if data.get("name") is not None:
+            new_route_name = data.get("name")
+            conflict_route = db.session.execute(
+                db.select(RouteConfiguration)
+                .where(RouteConfiguration.name == new_route_name)
+            ).scalar()
+            
+            if conflict_route:
+                return jsonify({
+                    "error": f"UNIQUE violation detected on 'name=\"{new_route_name}\"'",
+                    "message": f"The name '{new_route_name}' conflict with an existing route."
+                }), 409
             
         filtered_data = {}
         ignored_fields = set()

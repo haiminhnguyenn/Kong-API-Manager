@@ -19,6 +19,19 @@ def create_service():
                 "error": "Missing required field.",
                 "message": "One of the required fields 'host' or 'url' must be provided."
             }), 400
+            
+        if data.get("name") is not None:
+            service_name = data.get("name")
+            existed_service = db.session.execute(
+                db.select(ServiceConfiguration)
+                .where(ServiceConfiguration.name == service_name)
+            ).scalar()
+            
+            if existed_service:
+                return jsonify({
+                    "error": f"UNIQUE violation detected on 'name=\"{service_name}\"'",
+                    "message": f"A service with the name '{service_name}' already exists."
+                }), 409
         
         filtered_data = {}
         ignored_fields = set()
@@ -118,6 +131,19 @@ def update_service(identifier):
                 "error": "Service not found.",
                 "message": "No service found with the provided identifier."
             }), 404
+            
+        if data.get("name") is not None:
+            new_service_name = data.get("name")
+            conflict_service = db.session.execute(
+                db.select(ServiceConfiguration)
+                .where(ServiceConfiguration.name == new_service_name)
+            ).scalar()
+            
+            if conflict_service:
+                return jsonify({
+                    "error": f"UNIQUE violation detected on 'name=\"{new_service_name}\"'",
+                    "message": f"The name '{new_service_name}' conflict with an existing service."
+                }), 409
             
         filtered_data = {}
         ignored_fields = set()
