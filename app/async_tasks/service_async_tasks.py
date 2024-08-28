@@ -1,7 +1,7 @@
 from app import celery
 from app.extensions import db
 from flask import current_app as app
-from app.models import ServiceConfiguration, RouteConfiguration
+from app.models import ServiceConfiguration, RouteConfiguration, PluginConfiguration
 from sqlalchemy import or_
 import requests
 import logging
@@ -73,15 +73,24 @@ def update_kong_gw_service(identifier ,data):
             service_to_update.refresh_updated_at(response.json().get("updated_at"))
             for key, value in data.items():
                 setattr(service_to_update, key, value)
-                
-            routes_for_updated_service = db.session.query(RouteConfiguration).filter(
-                RouteConfiguration.service_id == service_to_update.id
-            ).all()
             
-            for route in routes_for_updated_service:
-                route.service.refresh_updated_at(response.json().get("updated_at"))
-                for key, value in data.items():
-                    setattr(route.service, key, value)
+            if service_to_update.routes:
+                routes_for_updated_service = db.session.query(RouteConfiguration).filter(
+                    RouteConfiguration.service_id == service_to_update.id
+                ).all()
+                for route in routes_for_updated_service:
+                    route.service.refresh_updated_at(service_to_update.updated_at)
+                    for key, value in data.items():
+                        setattr(route.service, key, value)
+            
+            if service_to_update.plugins:
+                plugins_for_updated_service = db.session.query(PluginConfiguration).filter(
+                    PluginConfiguration.service_id == service_to_update.id
+                ).all()
+                for plugin in plugins_for_updated_service:
+                    plugin.service.refresh_updated_at(service_to_update.updated_at)
+                    for key, value in data.items():
+                        setattr(plugin.service, key, value)
 
             db.session.commit()
             logger.info(f"Service updated successfully: {service_to_update.id}")
@@ -109,8 +118,15 @@ def delete_kong_gw_service(identifier):
                         ServiceConfiguration.name == identifier
                     )
                 )
-            )
+            ).scalar()
             
+            if service_to_delete.plugins:
+                plugins_to_delete = db.session.query(PluginConfiguration).filter(
+                    PluginConfiguration.service_id == service_to_delete.id
+                ).all()
+                for plugin in plugins_to_delete:
+                    db.session.delete(plugin)
+                
             db.session.delete(service_to_delete)
             db.session.commit()
             logger.info(f"Service deleted successfully: {service_to_delete.id}")

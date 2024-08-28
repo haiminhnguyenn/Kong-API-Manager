@@ -1,6 +1,6 @@
 from app.services import services_bp
 from flask import request, jsonify, current_app as app
-from app.service_async_tasks import create_kong_gw_service, update_kong_gw_service, delete_kong_gw_service
+from app.async_tasks.service_async_tasks import create_kong_gw_service, update_kong_gw_service, delete_kong_gw_service
 from app.models import ServiceConfiguration
 from app.extensions import db
 from sqlalchemy import or_

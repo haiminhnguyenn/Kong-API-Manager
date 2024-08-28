@@ -9,12 +9,15 @@ class Config:
         "tls_verify", "tls_verify_depth", "ca_certificates", "url"
     }
     ROUTE_CONFIG_FIELDS = {
-        "paths", "methods", "sources","destinations",
-        "name", "headers", "hosts", "preserve_host",
-        "regex_priority", "snis", "https_redirect_status_code",
-        "tags", "protocols", "path_handling", "id",
-        "updated_at", "service", "response_buffering",
-        "strip_path", "request_buffering", "created_at"
+        "paths", "methods", "sources", "destinations", "name", 
+        "headers", "hosts", "preserve_host","regex_priority", 
+        "snis", "https_redirect_status_code", "service", 
+        "response_buffering", "strip_path", "request_buffering"
+    }
+    PLUGIN_CONFIG_FIELDS = {
+        "enable", "protocols", "ordering", "consumer",
+        "consumer_group", "instance_name", "config",
+        "name", "tags", "service", "route"
     }
     CELERY_BROKER_URL = "amqp://localhost"
     KONG_ADMIN_URL = "http://localhost:8001"

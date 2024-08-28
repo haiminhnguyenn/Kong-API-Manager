@@ -21,4 +21,7 @@ def create_app(config_class=Config):
     from app.routes import routes_bp
     app.register_blueprint(routes_bp)
     
+    from app.plugins import plugins_bp
+    app.register_blueprint(plugins_bp)
+    
     return app
