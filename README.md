@@ -20,9 +20,9 @@ To get started with the application, follow these steps:
 
 Setting up:
 
-* Install [Kong Gateway](https://docs.konghq.com/gateway/latest/install)
-* Install database [PosgreSQL](https://www.postgresql.org/download/) to store configuration details.
-* Install task queue [RabbitMQ](https://www.rabbitmq.com/docs/download) to handle asynchronous tasks.
+* Install 🦍 **[Kong Gateway](https://docs.konghq.com/gateway/latest/install)**.
+* Install database 🐘 **[PosgreSQL](https://www.postgresql.org/download/)** to store configuration details.
+* Install task queue 🐇 **[RabbitMQ](https://www.rabbitmq.com/docs/download)** to handle asynchronous tasks.
 
 ### Installation
 
