@@ -175,7 +175,7 @@ def delete_kong_gw_route(route_identifier):
             
             if route_to_delete.plugins:
                 plugins_to_delete = db.session.query(PluginConfiguration).filter(
-                    PluginConfiguration.service_id == route_to_delete.id
+                    PluginConfiguration.route_id == route_to_delete.id
                 ).all()
                 for plugin in plugins_to_delete:
                     db.session.delete(plugin)
