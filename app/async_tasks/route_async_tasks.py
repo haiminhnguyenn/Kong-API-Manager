@@ -41,7 +41,7 @@ def create_kong_gw_route(data):
                 request_buffering=response_data.get("request_buffering"),
                 created_at=response_data.get("created_at"),
                 updated_at=response_data.get("updated_at"),
-                service_id=response_data["service"].get("id") 
+                service_id=response_data["service"].get("id") if response_data.get("service") else None
             )
             
             db.session.add(new_route)
@@ -87,7 +87,7 @@ def create_kong_gw_route_for_service(service_identifier, data):
                 request_buffering=response_data.get("request_buffering"),
                 created_at=response_data.get("created_at"),
                 updated_at=response_data.get("updated_at"),
-                service_id=response_data["service"].get("id") 
+                service_id=response_data["service"].get("id") if response_data.get("service") else None
             )
 
             db.session.add(new_route)

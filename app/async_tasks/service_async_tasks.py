@@ -34,8 +34,8 @@ def create_kong_gw_service(data):
                 tags=response_data.get("tags"),
                 client_certificate=response_data.get("client_certificate"),
                 tls_verify=response_data.get("tls_verify"),
-                created_at=response_data["created_at"],
-                updated_at=response_data["updated_at"],
+                created_at=response_data.get("created_at"),
+                updated_at=response_data.get("updated_at"),
                 tls_verify_depth=response_data.get("tls_verify_depth"),
                 write_timeout=response_data.get("write_timeout"),
                 ca_certificates=response_data.get("ca_certificates")

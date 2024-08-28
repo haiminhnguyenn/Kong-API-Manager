@@ -25,16 +25,16 @@ def create_kong_gw_plugin(data):
                 enable=response_data.get("enable"),
                 protocols=response_data.get("protocols"),
                 ordering=response_data.get("ordering"),
-                consumer_id=response_data["consumer"].get("id"),
-                consumer_group_id=response_data["consumer_group"].get("id"),
+                consumer_id=response_data["consumer"].get("id") if response_data.get("consumer") else None,
+                consumer_group_id=response_data["consumer_group"].get("id") if response_data.get("consumer_group") else None,
                 instance_name=response_data.get("instance_name"),
                 config=response_data.get("config"),
                 name=response_data.get("name"),
                 created_at=response_data.get("created_at"),
                 updated_at=response_data.get("updated_at"),
                 tags=response_data.get("tags"),
-                service_id=response_data["service"].get("id"),
-                route_id=response_data["route"].get("id")
+                service_id=response_data["service"].get("id") if response_data.get("service") else None,
+                route_id=response_data["route"].get("id") if response_data.get("route") else None
             )
             
             db.session.add(new_plugin)
@@ -64,16 +64,16 @@ def create_kong_gw_plugin_for_service(service_identifier, data):
                 enable=response_data.get("enable"),
                 protocols=response_data.get("protocols"),
                 ordering=response_data.get("ordering"),
-                consumer_id=response_data["consumer"].get("id"),
-                consumer_group_id=response_data["consumer_group"].get("id"),
+                consumer_id=response_data["consumer"].get("id") if response_data.get("consumer") else None,
+                consumer_group_id=response_data["consumer_group"].get("id") if response_data.get("consumer_group") else None,
                 instance_name=response_data.get("instance_name"),
                 config=response_data.get("config"),
                 name=response_data.get("name"),
                 created_at=response_data.get("created_at"),
                 updated_at=response_data.get("updated_at"),
                 tags=response_data.get("tags"),
-                service_id=response_data["service"].get("id"),
-                route_id=response_data["route"].get("id")
+                service_id=response_data["service"].get("id") if response_data.get("service") else None,
+                route_id=response_data["route"].get("id") if response_data.get("route") else None
             )
             
             db.session.add(new_plugin)
@@ -108,16 +108,16 @@ def create_kong_gw_plugin_for_route(route_identifier, data):
                 enable=response_data.get("enable"),
                 protocols=response_data.get("protocols"),
                 ordering=response_data.get("ordering"),
-                consumer_id=response_data["consumer"].get("id"),
-                consumer_group_id=response_data["consumer_group"].get("id"),
+                consumer_id=response_data["consumer"].get("id") if response_data.get("consumer") else None,
+                consumer_group_id=response_data["consumer_group"].get("id") if response_data.get("consumer_group") else None,
                 instance_name=response_data.get("instance_name"),
                 config=response_data.get("config"),
                 name=response_data.get("name"),
                 created_at=response_data.get("created_at"),
                 updated_at=response_data.get("updated_at"),
                 tags=response_data.get("tags"),
-                service_id=response_data["service"].get("id"),
-                route_id=response_data["route"].get("id")
+                service_id=response_data["service"].get("id") if response_data.get("service") else None,
+                route_id=response_data["route"].get("id") if response_data.get("route") else None
             )
             
             db.session.add(new_plugin)
