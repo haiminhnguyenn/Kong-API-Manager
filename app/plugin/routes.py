@@ -246,7 +246,7 @@ def create_plugin_for_api(api_identifier):
         
         
 @plugin.route("/apis/<api_identifier>/plugins/<plugin_identifier>", methods=["PATCH"])
-def update_plugin_for_api(api_identifier, plugin_identifier, data):
+def update_plugin_for_api(api_identifier, plugin_identifier):
     try:
         api = db.session.execute(
             db.select(API).where(

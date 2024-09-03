@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 
 
-def delete_plugin_if_empty(session: Session):
+def delete_plugin_if_empty(session: Session, flush_context):
     for plugin in session.query(Plugin).all():
         if not plugin.apis:
             try:
