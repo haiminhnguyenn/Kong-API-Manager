@@ -23,14 +23,14 @@ def list_apis():
         }), 500
         
         
-@api.route("/<identifier>")
-def get_api(identifier):
+@api.route("/<api_identifier>")
+def get_api(api_identifier):
     try:
         api = db.session.execute(
             db.select(API).where(
                 or_(
-                    API.id == identifier,
-                    API.name == identifier
+                    API.id == api_identifier,
+                    API.name == api_identifier
                 )   
             )
         ).scalar()
@@ -109,14 +109,14 @@ def create_api():
         }), 500
         
         
-@api.route("/<identifier>", methods=["PATCH"])
-def update_api(identifier):
+@api.route("/<api_identifier>", methods=["PATCH"])
+def update_api(api_identifier):
     try:
         api_to_update = db.session.execute(
             db.select(API).where(
                 or_(
-                    API.id == identifier,
-                    API.name == identifier
+                    API.id == api_identifier,
+                    API.name == api_identifier
                 )
             )
         ).scalar()
@@ -161,7 +161,7 @@ def update_api(identifier):
                         "message": f"The {field} '{value}' conflict with an existing API."
                     }), 409
                 
-        async_update_api.delay(identifier, data)
+        async_update_api.delay(api_identifier, data)
         
         return jsonify({
             "message": "API update request has been submitted."
@@ -180,14 +180,14 @@ def update_api(identifier):
         }), 500
         
         
-@api.route("/<identifier>", methods=["DELETE"])
-def delete_api(identifier):
+@api.route("/<api_identifier>", methods=["DELETE"])
+def delete_api(api_identifier):
     try:
         api_to_delete = db.session.execute(
             db.select(API).where(
                 or_(
-                    API.id == identifier,
-                    API.name == identifier
+                    API.id == api_identifier,
+                    API.name == api_identifier
                 )
             )
         ).scalar()
@@ -198,7 +198,7 @@ def delete_api(identifier):
                 "message": "No API found with the provided identifier."
             })
             
-        async_delete_api.delay(identifier)
+        async_delete_api.delay(api_identifier)
         
         return jsonify({
             "message": "API deletion request has been submitted."

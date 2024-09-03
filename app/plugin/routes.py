@@ -23,11 +23,11 @@ def list_plugins():
         }), 500
         
         
-@plugin.route("/plugins/<identifier>")
-def get_plugin(identifier):
+@plugin.route("/plugins/<plugin_identifier>")
+def get_plugin(plugin_identifier):
     try:
         plugin = db.session.execute(
-            db.select(Plugin).where(Plugin.id == identifier)
+            db.select(Plugin).where(Plugin.id == plugin_identifier)
         ).scalar()
         
         if plugin is None:
@@ -49,14 +49,14 @@ def get_plugin(identifier):
         }), 500
         
         
-@plugin.route("/plugins/<identifier>/apis")
-def list_apis_using_plugin(identifier):
+@plugin.route("/plugins/<plugin_identifier>/apis")
+def list_apis_using_plugin(plugin_identifier):
     try:
         plugin = db.session.execute(
             db.select(Plugin).where(
                 or_(
-                    Plugin.id == identifier,
-                    Plugin.name == identifier
+                    Plugin.id == plugin_identifier,
+                    Plugin.name == plugin_identifier
                 )
             )
         ).scalar()
