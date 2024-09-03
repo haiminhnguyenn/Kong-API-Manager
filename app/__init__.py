@@ -2,6 +2,7 @@ from flask import Flask
 from config import Config
 from app.extensions import db
 from celery import Celery
+from app import events
 
 
 celery = Celery(__name__, broker=Config.CELERY_BROKER_URL)
@@ -15,13 +16,10 @@ def create_app(config_class=Config):
     
     celery.conf.update(app.config)
     
-    from app.services import services_bp
-    app.register_blueprint(services_bp, url_prefix="/services")
+    from app.api import api as api_bp
+    app.register_blueprint(api_bp, url_prefix="apis")
     
-    from app.routes import routes_bp
-    app.register_blueprint(routes_bp)
-    
-    from app.plugins import plugins_bp
-    app.register_blueprint(plugins_bp)
+    from app.plugin import plugin as plugin_bp
+    app.register_blueprint(plugin_bp)
     
     return app

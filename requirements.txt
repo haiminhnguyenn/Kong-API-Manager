@@ -4,5 +4,3 @@ flask_sqlalchemy
 psycopg2-binary
 requests
 celery
-amqp
-rabbitmq
