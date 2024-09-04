@@ -56,7 +56,7 @@ class API(TimestampMixin, db.Model):
         return {column: getattr(self, column) for column in columns}
 
 
-class Plugin(TimestampMixin, db.Model):
+class Plugin(db.Model):
     __tablename__ = "plugin"
     
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))  

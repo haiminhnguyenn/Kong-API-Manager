@@ -111,7 +111,9 @@ def list_plugins_for_api(api_identifier):
             plugin_info.update({
                 "config": plugin_config.config,
                 "enabled": plugin_config.enabled,
-                "kong_plugin_id": plugin_config.kong_plugin_id
+                "kong_plugin_id": plugin_config.kong_plugin_id,
+                "created_at": plugin_config.created_at,
+                "updated_at": plugin_config.updated_at
             })
             plugins_data.append(plugin_info)
 
@@ -167,7 +169,9 @@ def get_plugin_for_api(api_identifier, plugin_identifier):
         plugin_data.update({
             "config": plugin_config.config,
             "enabled": plugin_config.enabled,
-            "kong_plugin_id": plugin_config.kong_plugin_id
+            "kong_plugin_id": plugin_config.kong_plugin_id,
+            "created_at": plugin_config.created_at,
+            "updated_at": plugin_config.updated_at
         })
         
         return jsonify({
