@@ -21,7 +21,7 @@ This is a Flask backend that serves as an intermediary between the client and Ko
 ## 🗄️ Database Structure
 
 This project uses PostgreSQL to store API and Plugin configurations and task results. Below is the database diagram that illustrates the relationships between the tables:
-![Database Diagram](https://github.com/user-attachments/assets/548fb6f1-b34a-4368-9c8f-25741c56f9fb)
+![Database Diagram](https://github.com/user-attachments/assets/ff374bc2-a217-4c29-b955-c2e67b487e54)
 
 ## 🎯 Benefits
 
