@@ -108,16 +108,18 @@ def list_plugins_for_api(api_identifier):
         plugins_data = []
         for plugin_config in api.plugins:
             plugin_info = plugin_config.plugin.to_dict()
-            plugin_info["config"] = plugin_config.config
-            plugin_info["enabled"] = plugin_config.enabled
-            plugin_info["kong_plugin_id"] = plugin_config.kong_plugin_id
+            plugin_info.update({
+                "config": plugin_config.config,
+                "enabled": plugin_config.enabled,
+                "kong_plugin_id": plugin_config.kong_plugin_id
+            })
             plugins_data.append(plugin_info)
 
         return jsonify({
             "api_id": api.id,
             "plugins": plugins_data
         }), 200
-
+          
     except Exception as e:
         return jsonify({
             "error": "Internal server error.",
@@ -143,24 +145,35 @@ def get_plugin_for_api(api_identifier, plugin_identifier):
                 "message": "No API found with the provided identifier."
             }), 404
             
-        plugin_data = None
+        plugin_config = db.session.execute(
+            db.select(PluginAPIConfiguration)
+            .join(Plugin, Plugin.id == PluginAPIConfiguration.plugin_id)
+            .where(
+                PluginAPIConfiguration.api_id == api.id,
+                or_(
+                    Plugin.id == plugin_identifier,
+                    Plugin.name == plugin_identifier
+                )
+            )
+        ).scalar()
         
-        for plugin_config in api.plugins:
-            if plugin_config.plugin_id == plugin_identifier:
-                plugin_data = plugin_config.plugin.to_dict()
-                plugin_data["config"] = plugin_config.config
-                plugin_data["enabled"] = plugin_config.enabled
-                plugin_data["kong_plugin_id"] = plugin_config.kong_plugin_id
-                
-                return jsonify({
-                    "api_id": api.id,
-                    "plugin": plugin_data
-                }), 200
-                
+        if plugin_config is None:
+            return jsonify({
+                "error": "Not found.",
+                "message": "No plugin found with the provided identifier."
+            }), 404
+        
+        plugin_data = plugin_config.plugin.to_dict()
+        plugin_data.update({
+            "config": plugin_config.config,
+            "enabled": plugin_config.enabled,
+            "kong_plugin_id": plugin_config.kong_plugin_id
+        })
+        
         return jsonify({
-            "error": "Not found.",
-            "message": "No plugin found with the provided identifier."
-        }), 404     
+            "api_id": api.id,
+            "plugin": plugin_data
+        }), 200
         
     except Exception as e:
         return jsonify({
@@ -288,7 +301,7 @@ def update_plugin_for_api(api_identifier, plugin_identifier):
             
         unknown_fields = {
             field: "unknown field" for field in data.keys()
-            if field not in app.config["ALLOW_PLUGIN_CONFIG_FIELDS"]
+            if field not in app.config["ALLOW_FIELDS_FOR_UPDATE_PLUGIN"]
         }
                 
         if unknown_fields:
