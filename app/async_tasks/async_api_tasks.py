@@ -130,8 +130,9 @@ def async_update_api(identifier, data):
                 return
                 
         update_route_data = {
-            field: data.get(field) for field in ["path", "headers", "methods"] 
-            if data.get(field)
+            **({"paths": [data.get("path")]} if data.get("path") else {}),
+            **({"headers": data.get("headers")} if data.get("headers") else {}),
+            **({"methods": data.get("methods")} if data.get("methods") else {})
         }
         
         if update_route_data:
@@ -140,7 +141,10 @@ def async_update_api(identifier, data):
             
             if update_route_response.status_code == 200:
                 for key, value in update_route_data.items():
-                    setattr(api_to_update, key, value)
+                    if key == "paths":
+                        api_to_update.path = data.get("path")
+                    else:
+                        setattr(api_to_update, key, value)
                     
                 logger.info(f"Route with ID: {api_to_update.kong_route_id} successfully updated from Kong Gateway")
             else:
