@@ -16,14 +16,6 @@
 - **Persistent Storage**: Saves API and Plugin data into a PostgreSQL database after successful requests to Kong. This allows you to retrieve the information quickly from the database for GET requests.
 - **Error Handling**: When requests fail, return clear and informative error messages to the client.
 
-## 🌟 Benefits
-
-- **Simplified User Interaction**: Users no longer need to handle the complexity of Kong's API directly. The backend provides a straightforward interface for managing services, routes, and plugins.
-- **Data Consistency**: By validating client requests before they reach Kong, the backend ensures that only accurate and compatible data is sent, minimizing errors.
-- **Reduced Downtime**: With RabbitMQ handling rollbacks asynchronously, you can easily revert changes without impacting the client experience or causing service disruptions.
-- **Faster Access to Data**: Storing API and Plugin data in PostgreSQL ensures quicker access when handling GET requests, rather than repeatedly querying Kong.
-- **Error Transparency**: Clear and concise error messages help users understand what went wrong without having to dig through complex error logs from Kong.
-
 ## 🛠️ Tech Stack
 
 - **Flask**: Lightweight Python web framework for building the API.
@@ -44,19 +36,15 @@
 This project uses PostgreSQL to store API and Plugin configurations and task results. Below is the database diagram that illustrates the relationships between the tables:
 ![Database Diagram](https://github.com/user-attachments/assets/ff374bc2-a217-4c29-b955-c2e67b487e54)
 
-## ⚙️ Getting Started
+## 🌟 Benefits
 
-To get started with the application, follow these steps:
+- **Simplified User Interaction**: Users no longer need to handle the complexity of Kong's API directly. The backend provides a straightforward interface for managing services, routes, and plugins.
+- **Data Consistency**: By validating client requests before they reach Kong, the backend ensures that only accurate and compatible data is sent, minimizing errors.
+- **Reduced Downtime**: With RabbitMQ handling rollbacks asynchronously, you can easily revert changes without impacting the client experience or causing service disruptions.
+- **Faster Access to Data**: Storing API and Plugin data in PostgreSQL ensures quicker access when handling GET requests, rather than repeatedly querying Kong.
+- **Error Transparency**: Clear and concise error messages help users understand what went wrong without having to dig through complex error logs from Kong.
 
-### 🚀 Prerequisites
-
-Setting up:
-
-* Install 🦍 **[Kong Gateway](https://docs.konghq.com/gateway/latest/install)**.
-* Install database 🐘 **[PosgreSQL](https://www.postgresql.org/download/)** to store configuration details.
-* Install task queue 🐇 **[RabbitMQ](https://www.rabbitmq.com/docs/download)** to handle asynchronous tasks.
-
-### 🛠️ Installation
+## ⚙️ Installation
 
 1. Clone the repo
 ```sh
