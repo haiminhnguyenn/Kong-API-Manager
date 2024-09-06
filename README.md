@@ -1,5 +1,4 @@
-# 🌐 Flask Backend for Kong Gateway Management
-> A Flask-based backend service is designed to facilitate the interaction between clients and Kong Gateway
+# 🦍 Flask Backend for Kong Gateway Management
 
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
 ![Flask](https://img.shields.io/badge/Flask-2.0.1-green)
@@ -7,28 +6,43 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13-blue)
 ![Kong Gateway](https://img.shields.io/badge/Kong%20Gateway-2.x-blueviolet)
 
-## 📖 Description
+🚀 **Simplify your Kong Gateway Management** with this Flask Backend. This project serves as a middleware between clients and the Kong Gateway, providing a user-friendly interface for managing services, routes, and plugins, while hiding complex logic and ensuring data integrity.
 
-This is a Flask backend that serves as an intermediary between the client and Kong Gateway. The goal of the project is to provide a user-friendly interface that simplifies CRUD (Create, Read, Update, Delete) operations related to services, routes, and plugins on Kong Gateway, hiding the complex processing logic from the end user.
+## 🎯 Features
 
-## 🌟 Features
+- **CRUD Operations**: Perform create, read, update, and delete operations on Kong services, routes, and plugins.
+- **Request Validation**: Validates requests from clients before forwarding them to Kong to ensure data consistency and correctness.
+- **Asynchronous Rollbacks**: Utilizes RabbitMQ to rollback changes asynchronously in case of errors during Kong operations, ensuring smooth user experience.
+- **Persistent Storage**: Saves API and Plugin data into a PostgreSQL database after successful requests to Kong. This allows you to retrieve the information quickly from the database for GET requests.
+- **Error Handling**: When requests fail, return clear and informative error messages to the client.
 
-- **⚡ Asynchronous Task Handling:** Uses RabbitMQ to handle tasks like creating, updating, and deleting APIs asynchronously, improving performance and responsiveness.
-- **💾 Data Persistence:** Stores responses from Kong Gateway in PostgreSQL to efficiently serve subsequent GET requests from the client.
-- **🔧 Simplified API Management:** Provides an interface for users to manage services, routes, and plugins without needing to interact directly with Kong Gateway, reducing the complexity of operations.
-- **🔌 Plugin Management:** Allows users to manage plugins for specific APIs, enabling or disabling them based on the corresponding routes mapped to APIs on Kong Gateway.
+## 🌟 Benefits
+
+- **Simplified User Interaction**: Users no longer need to handle the complexity of Kong's API directly. The backend provides a straightforward interface for managing services, routes, and plugins.
+- **Data Consistency**: By validating client requests before they reach Kong, the backend ensures that only accurate and compatible data is sent, minimizing errors.
+- **Reduced Downtime**: With RabbitMQ handling rollbacks asynchronously, you can easily revert changes without impacting the client experience or causing service disruptions.
+- **Faster Access to Data**: Storing API and Plugin data in PostgreSQL ensures quicker access when handling GET requests, rather than repeatedly querying Kong.
+- **Error Transparency**: Clear and concise error messages help users understand what went wrong without having to dig through complex error logs from Kong.
+
+## 🛠️ Tech Stack
+
+- **Flask**: Lightweight Python web framework for building the API.
+- **Kong Gateway**: Powerful API gateway used for managing services, routes, and plugins.
+- **PostgreSQL**: Database for persisting API and Plugin information.
+- **RabbitMQ**: Message broker for asynchronous task handling and rollbacks.
+- **WSL Ubuntu**: Running environment on Windows Subsystem for Linux.
+
+## 🚧 How It Works
+
+1. **Validation**: The backend validates incoming client requests for CRUD operations. If the request is valid, it proceeds to Kong Gateway; otherwise, an error is returned.
+2. **Kong Interaction**: The backend sends valid requests to Kong Gateway to manage services, routes, and plugins.
+3. **Data Persistence**: After receiving a successful response from Kong, the data is saved into PostgreSQL for later retrieval.
+4. **Error Management**: If something goes wrong during interaction with Kong, RabbitMQ is triggered to rollback any recent changes asynchronously.
 
 ## 🗄️ Database Structure
 
 This project uses PostgreSQL to store API and Plugin configurations and task results. Below is the database diagram that illustrates the relationships between the tables:
 ![Database Diagram](https://github.com/user-attachments/assets/ff374bc2-a217-4c29-b955-c2e67b487e54)
-
-## 🎯 Benefits
-
-- **👌 User-Friendly Interface:** Simplifies the interaction with Kong Gateway, making it easier for users to manage their APIs without deep knowledge of Kong’s internal workings.
-- **🚀 Performance Optimization:** Asynchronous processing via RabbitMQ ensures that tasks are handled efficiently without blocking the main application flow.
-- **🛡️ Data Integrity:** All changes and configurations are stored in PostgreSQL, providing a reliable way to track and retrieve API configurations.
-- **📈 Scalability:** The use of asynchronous processing and separate database storage allows the system to scale effectively as the number of APIs grows.
 
 ## ⚙️ Getting Started
 
@@ -60,8 +74,3 @@ celery -A celery_worker.celery worker --loglevel=info
 ```sh
 python3 run.py
 ```
-
-## 📋 Usage
-
-- To manage APIs (services, routes, plugins), send requests to the appropriate endpoints. The backend will handle the interactions with Kong Gateway and RabbitMQ.
-- Use the provided GET endpoints to retrieve the current configuration and status of your APIs from the PostgreSQL database.
