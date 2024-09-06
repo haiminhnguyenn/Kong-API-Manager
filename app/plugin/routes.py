@@ -1,9 +1,9 @@
 from app.plugin import plugin
 from flask import request, jsonify, current_app as app
 from app.models import API, Plugin, PluginAPIConfiguration
-from app.async_tasks.async_plugin_tasks import async_create_plugin, async_update_plugin, async_delete_plugin
 from app.extensions import db
 from sqlalchemy import or_
+from app.kong_client.plugin_client import create_plugin_in_kong, update_plugin_in_kong, delete_plugin_in_kong
 
 
 @plugin.route("/plugins")
@@ -47,6 +47,9 @@ def get_plugin(plugin_identifier):
             "error": "Internal server error.",
             "message": str(e)
         }), 500
+    
+    finally:
+        db.session.close()
         
         
 @plugin.route("/plugins/<plugin_identifier>/apis")
@@ -85,6 +88,9 @@ def list_apis_using_plugin(plugin_identifier):
             "error": "Internal server error.",
             "message": str(e)
         }), 500
+        
+    finally:
+        db.session.close()
         
         
 @plugin.route("/apis/<api_identifier>/plugins")
@@ -127,6 +133,9 @@ def list_plugins_for_api(api_identifier):
             "error": "Internal server error.",
             "message": str(e)
         }), 500
+        
+    finally:
+        db.session.close()
         
         
 @plugin.route("/apis/<api_identifier>/plugins/<plugin_identifier>")
@@ -184,6 +193,9 @@ def get_plugin_for_api(api_identifier, plugin_identifier):
             "error": "Internal server error.",
             "message": str(e)
         }), 500
+        
+    finally:
+        db.session.close()
         
         
 @plugin.route("/apis/<api_identifier>/plugins", methods=["POST"])
@@ -243,11 +255,35 @@ def create_plugin_for_api(api_identifier):
                 "message": f"The '{plugin_name}' plugin already exists for this API."
             }), 409
                 
-        async_create_plugin.delay(api_identifier, data)
+        config, kong_plugin_id, error = create_plugin_in_kong(api.kong_service_id, data)
         
+        if error:
+            return jsonify({
+                "error": "Plugin creation failed.",
+                "message": error
+            }), 500
+            
+        plugin = db.session.execute(
+            db.select(Plugin).where(Plugin.name == plugin_name)
+        ).scalar()
+            
+        if plugin is None:
+            plugin = Plugin(name=plugin_name)
+            db.session.add(plugin)
+
+        plugin_config = PluginAPIConfiguration(
+            config=config,
+            kong_plugin_id=kong_plugin_id,
+            plugin=plugin,
+            api=api
+        )
+        
+        db.session.add(plugin_config)
+        db.session.commit()
         return jsonify({
-            "message": "API creation request has been submitted."
-        }), 202
+            "message": "Plugin created successfully.",
+            "plugin_id": plugin.id
+        }), 201
             
     except ValueError as e:
         return jsonify({
@@ -256,10 +292,14 @@ def create_plugin_for_api(api_identifier):
         }), 400
     
     except Exception as e:
+        db.session.rollback()
         return jsonify({
             "error": "Internal server error.",
             "message": str(e)
         }), 500
+        
+    finally:
+        db.session.close()
         
         
 @plugin.route("/apis/<api_identifier>/plugins/<plugin_identifier>", methods=["PATCH"])
@@ -280,7 +320,7 @@ def update_plugin_for_api(api_identifier, plugin_identifier):
                 "message": "No API found with the provided identifier."
             }), 404
             
-        plugin = db.session.execute(
+        plugin_config_to_update = db.session.execute(
             db.select(PluginAPIConfiguration)
             .join(Plugin, Plugin.id == PluginAPIConfiguration.plugin_id)
             .where(
@@ -292,7 +332,7 @@ def update_plugin_for_api(api_identifier, plugin_identifier):
             )
         ).scalar()
         
-        if plugin is None:
+        if plugin_config_to_update is None:
             return jsonify({
                 "error": "Not found.",
                 "message": "No plugin found with the provided identifier."
@@ -314,11 +354,21 @@ def update_plugin_for_api(api_identifier, plugin_identifier):
                 "fields": unknown_fields
             }), 400
                
-        async_update_plugin.delay(api_identifier, plugin_identifier, data)
+        status, error = update_plugin_in_kong(plugin_config_to_update.kong_plugin_id, data)
         
+        if status == "failure":
+            return jsonify({
+                "error": "Plugin update failed.",
+                "message": error
+            }), 500
+            
+        for key, value in data.items():
+            setattr(plugin_config_to_update, key, value)
+            
+        db.session.commit()
         return jsonify({
-            "message": "Plugin update request has been submitted."
-        }), 202
+            "message": "Plugin updated successfully."
+        }), 200
             
     except ValueError as e:
         return jsonify({
@@ -327,10 +377,14 @@ def update_plugin_for_api(api_identifier, plugin_identifier):
         }), 400
     
     except Exception as e:
+        db.session.rollback()
         return jsonify({
             "error": "Internal server error.",
             "message": str(e)
         }), 500
+        
+    finally:
+        db.session.close()
         
         
 @plugin.route("/apis/<api_identifier>/plugins/<plugin_identifier>", methods=["DELETE"])
@@ -351,7 +405,7 @@ def delete_plugin_for_api(api_identifier, plugin_identifier):
                 "message": "No API found with the provided identifier."
             }), 404
             
-        plugin = db.session.execute(
+        plugin_config_to_delete = db.session.execute(
             db.select(PluginAPIConfiguration)
             .join(Plugin, Plugin.id == PluginAPIConfiguration.plugin_id)
             .where(
@@ -363,17 +417,25 @@ def delete_plugin_for_api(api_identifier, plugin_identifier):
             )
         ).scalar()
         
-        if plugin is None:
+        if plugin_config_to_delete is None:
             return jsonify({
                 "error": "Not found.",
                 "message": "No plugin found with the provided identifier."
             }), 404
                
-        async_delete_plugin.delay(api_identifier, plugin_identifier)
+        status, error = delete_plugin_in_kong(plugin_config_to_delete.kong_plugin_id)
         
+        if status == "failure":
+            return jsonify({
+                "error": "Plugin deletion failed.",
+                "message": error
+            }), 500
+        
+        db.session.delete(plugin_config_to_delete)
+        db.session.commit()
         return jsonify({
-            "message": "Plugin deletion request has been submitted."
-        }), 202
+            "message": "Plugin deleted successfully."
+        }), 200
             
     except ValueError as e:
         return jsonify({
@@ -382,7 +444,11 @@ def delete_plugin_for_api(api_identifier, plugin_identifier):
         }), 400
     
     except Exception as e:
+        db.session.rollback()
         return jsonify({
             "error": "Internal server error.",
             "message": str(e)
         }), 500
+        
+    finally:
+        db.session.close()

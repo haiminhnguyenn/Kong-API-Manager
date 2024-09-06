@@ -1,8 +1,8 @@
+import logging
 from sqlalchemy import event
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from app.models import Plugin
-import logging
 
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")

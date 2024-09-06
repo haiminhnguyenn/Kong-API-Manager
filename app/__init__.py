@@ -1,8 +1,8 @@
 from flask import Flask
-from config import Config
-from app.extensions import db
 from celery import Celery
 from app import events
+from app.extensions import db
+from config import Config
 
 
 celery = Celery(__name__, broker=Config.CELERY_BROKER_URL)

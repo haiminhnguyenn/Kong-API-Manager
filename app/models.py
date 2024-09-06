@@ -1,10 +1,12 @@
+from datetime import datetime, timezone
+from typing import Optional
+import uuid
+
 from sqlalchemy import String, Integer, Boolean, ARRAY, JSON, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.inspection import inspect
+
 from app.extensions import db
-from typing import Optional
-from datetime import datetime, timezone
-import uuid
 
 
 class TimestampMixin:
