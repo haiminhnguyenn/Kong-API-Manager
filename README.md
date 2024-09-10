@@ -54,7 +54,7 @@ git clone https://github.com/haiminhnguyenn/Kong-API-Manager.git
 ```sh
 pip install -r requirements.txt
 ```
-3. Set up the database: Apply migrations to create the database schema:
+3. Run the database migrations:
 ```sh
 flask db upgrade
 ```
