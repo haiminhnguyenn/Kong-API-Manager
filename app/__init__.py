@@ -1,7 +1,7 @@
 from flask import Flask
 from celery import Celery
 from app import events
-from app.extensions import db
+from app.extensions import db, migrate
 from config import Config
 
 
@@ -13,6 +13,7 @@ def create_app(config_class=Config):
     app.config.from_object(config_class)
     
     db.init_app(app)
+    migrate.init_app(app, db)
     
     celery.conf.update(app.config)
     

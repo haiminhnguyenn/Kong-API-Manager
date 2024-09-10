@@ -54,11 +54,15 @@ git clone https://github.com/haiminhnguyenn/Kong-API-Manager.git
 ```sh
 pip install -r requirements.txt
 ```
-3. Open a second terminal window and start a Celery worker:
+3. Set up the database: Apply migrations to create the database schema:
+```sh
+flask db upgrade
+```
+4. Open a second terminal window and start a Celery worker:
 ```sh
 celery -A celery_worker.celery worker --loglevel=info
 ```
-4. Start Kong API Management on your first terminal window:
+5. Start Kong API Management on your first terminal window:
 ```sh
 python3 run.py
 ```
